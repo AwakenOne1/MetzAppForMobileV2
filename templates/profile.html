@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Профиль пользователя{% endblock %}
+{% block content %}
+    <h2 style="text-align: center;">Табельный номер: {{ user.tab_number }}</h2>
+
+    <h3>Заявки:</h3>
+    <ul class="application-list">
+        {% for application in applications %}
+            {% if application.status == 0 %}
+                {% set status_text = "Отправлена" %}
+            {% elif application.status == 1 %}
+                {% set status_text = "Принята" %}
+            {% elif application.status == 2 %}
+                {% set status_text = "Обозначена бюро как завершённая" %}
+            {% elif application.status == 3 %}
+                {% set status_text = "Завершена" %}
+            {% endif %}
+
+            <li class="application-item" style="
+                    {% if application.status == 0 %}
+                        background: linear-gradient(to right, rgba(248,4,4,0.1), rgba(255,0,29,0.1));
+                    {% elif application.status == 1 %}
+                        background: linear-gradient(to right, rgba(243,203,2,0.1), rgba(250,247,54,0.1));
+                    {% elif application.status == 2 %}
+                        background: linear-gradient(to right, rgba(68,179,250,0.1), rgba(54,177,250,0.1));
+                    {% elif application.status == 3 %}
+                        background: linear-gradient(to right, rgba(3,224,15,0.1), rgba(0,246,22,0.1));
+                    {% endif %}
+                    ">
+                <p class="application-description">Проблема: {{ application.description }}</p>
+                <p class="application-inventory" style="color: black;">Инвентарный
+                    номер: {{ application.inventory_number }}</p>
+                <p class="application-status">Статус: {{ status_text }}</p>
+                {% if application.photo %}
+                    <img class="application-photo" src="{{ url_for('get_picture', filename=application.photo) }}"
+                         alt="Application Photo">
+                {% endif %}
+                {% if application.status == 2 %}
+                    <form action="{{ url_for('mark_as_done', application_id=application.id) }}" method="POST">
+                        <button type="submit" class="btn btn-success">Отметить как выполненную</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if not applications %}
+        <p class="no-applications">У вас нет заявок.</p>
+    {% endif %}
+{% endblock %}

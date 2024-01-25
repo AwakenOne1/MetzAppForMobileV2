@@ -1,0 +1,64 @@
+body {
+    background-size: contain;
+}
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.body-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: url(logo.png);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center;
+    background-size: 50%;
+    opacity: 0.2;
+}
+
+.application-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.application-item {
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.application-description {
+    font-weight: bold;
+}
+
+.application-inventory {
+    margin-top: 5px;
+    color: #888;
+}
+
+.application-photo {
+    max-width: 200px;
+    margin-top: 10px;
+}
+
+.no-applications {
+    font-style: italic;
+    color: #888;
+}
+
+.btn {
+  border-radius: 10px;
+}
+
+.btn-success {
+  background-color: #d6ffed;
+  border-color: green;
+  color: black;
+}
