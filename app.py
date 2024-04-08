@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, session, send_from_directory
+from flask import Flask, render_template, redirect, url_for, flash, request, session, send_from_directory, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +7,9 @@ import os
 import datetime
 import time
 import re
+import base64
+from io import BytesIO
+from PIL import Image
 
 app = Flask(__name__)
 app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1'
@@ -167,6 +170,83 @@ def profile():
     user = current_user
     result = db.session.query(Application).filter_by(user_id=current_user.id).all()
     return render_template('profile.html', user=user, applications=result)
+
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    tab_number = data.get('tab_number')
+    password = data.get('password')
+
+    user = User.query.filter_by(tab_number=tab_number).first()
+
+    if user and user.check_password(password):
+        login_user(user)
+        return jsonify({'message': 'Login successful'})
+    else:
+        return jsonify({'message': 'Invalid tab number or password'}), 401
+
+
+@app.route('/api/applications', methods=['POST'])
+def api_submit_application():
+    data = request.get_json()
+    description = data.get('description')
+    inventory_number = data.get('inventory_number')
+    photo = data.get('photo')
+    user_id = data.get('user_id')
+
+    # Validate inventory number
+    if not re.match(r'^\d{5,8}$', inventory_number):
+        return jsonify({'message': 'Invalid inventory number'}), 400
+
+    # Save photo if provided
+    if photo:
+        image_data = base64.b64decode(photo)
+
+        # Создаем объект BytesIO для чтения данных в виде потока байтов
+        image_stream = BytesIO(image_data)
+
+        # Открываем изображение с помощью PIL
+        image = Image.open(image_stream)
+
+        # Сохраняем изображение на диск
+        filename = str(time.time()) + ".jpg"
+        image.save(os.path.join(app.config['Pictures'], filename)) # Замените 'saved_image.jpg' на путь и имя файла по вашему выбору
+        photo_filename = filename
+    else:
+        photo_filename = None
+
+    # Create a new application
+    new_application = Application(
+        description=description,
+        inventory_number=inventory_number,
+        photo=photo_filename,
+        status=0,
+        user_id=user_id
+    )
+    db.session.add(new_application)
+    db.session.commit()
+
+    return jsonify({'message': 'Application submitted successfully'})
+
+
+@app.route('/api/applications', methods=['GET'])
+@login_required
+def api_get_applications():
+    applications = Application.query.filter_by(user_id=current_user.id).all()
+    application_data = []
+
+    for application in applications:
+        application_data.append({
+            'id': application.id,
+            'description': application.description,
+            'inventory_number': application.inventory_number,
+            'photo': application.photo,
+            'status': application.status,
+            'latest_valuable_date': application.latest_valubale_date
+        })
+
+    return jsonify(application_data)
 
 
 if __name__ == '__main__':
