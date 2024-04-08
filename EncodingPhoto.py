@@ -10,3 +10,4 @@ image_64 = base64.b64encode(image_data).decode('utf-8')
 print(image_64)
 
 lis1 = list()
+

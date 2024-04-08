@@ -14,7 +14,7 @@ from PIL import Image
 app = Flask(__name__)
 app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1'
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://SA:Wer0820_@localhost/METZ?driver=ODBC+Driver+17+for+SQL+Server'
+    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///METZ.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -29,7 +29,9 @@ Session(app)
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
+    phone_number = db.Column(db.String(20), unique=True, nullable=True)
     password_hash = db.Column(db.String(128), nullable=False)
+    applications = db.relationship('Application', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -104,7 +106,7 @@ def register():
             return redirect(url_for('register'))
 
         # Create a new user
-        new_user = User(tab_number=tab_number)
+        new_user = User(tab_number=tab_number, phone_number='+375296574530')
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -177,12 +179,10 @@ def api_login():
     data = request.get_json()
     tab_number = data.get('tab_number')
     password = data.get('password')
-
-    user = User.query.filter_by(tab_number=tab_number).first()
-
+    phone_number = data.get('phone_number')
+    user = User.query.filter_by(tab_number=tab_number, phone_number=phone_number).first()
     if user and user.check_password(password):
-        login_user(user)
-        return jsonify({'message': 'Login successful'})
+        return jsonify({'message': user.id})
     else:
         return jsonify({'message': 'Invalid tab number or password'}), 401
 
@@ -211,7 +211,7 @@ def api_submit_application():
 
         # Сохраняем изображение на диск
         filename = str(time.time()) + ".jpg"
-        image.save(os.path.join(app.config['Pictures'], filename)) # Замените 'saved_image.jpg' на путь и имя файла по вашему выбору
+        image.save(os.path.join(app.config['Pictures'], filename))
         photo_filename = filename
     else:
         photo_filename = None

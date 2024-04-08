@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash
 
 app = Flask(__name__)
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://SA:Wer0820_@localhost/METZ?driver=ODBC+Driver+17+for+SQL+Server'
+    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///METZ.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
+    phone_number = db.Column(db.String(20), unique=True, nullable=True)
     password_hash = db.Column(db.String(1024), nullable=False)
     applications = db.relationship('Application', backref='user', lazy=True)
 
