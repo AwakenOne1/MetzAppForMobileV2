@@ -232,7 +232,6 @@ def api_submit_application():
 
 
 @app.route('/api/applications', methods=['GET'])
-@login_required
 def api_get_applications():
     user_id = request.args.get('user_id')
 
@@ -243,11 +242,15 @@ def api_get_applications():
 
     application_data = []
     for application in applications:
+        with open(app.config['Pictures']  + '/'+ application.photo, 'rb') as image_file:
+            image_data = image_file.read()
+
+        image_64 = base64.b64encode(image_data).decode('utf-8')
         application_data.append({
             'id': application.id,
             'description': application.description,
             'inventory_number': application.inventory_number,
-            'photo': application.photo,
+            'photo': image_64,
             'status': application.status
         })
 
