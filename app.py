@@ -1,3 +1,4 @@
+import flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session, send_from_directory, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_session import Session
@@ -233,17 +234,21 @@ def api_submit_application():
 @app.route('/api/applications', methods=['GET'])
 @login_required
 def api_get_applications():
-    applications = Application.query.filter_by(user_id=current_user.id).all()
-    application_data = []
+    user_id = request.args.get('user_id')
 
+    if user_id:
+        applications = Application.query.filter_by(user_id=user_id).all()
+    else:
+        return jsonify("У вас нет заявок")
+
+    application_data = []
     for application in applications:
         application_data.append({
             'id': application.id,
             'description': application.description,
             'inventory_number': application.inventory_number,
             'photo': application.photo,
-            'status': application.status,
-            'latest_valuable_date': application.latest_valubale_date
+            'status': application.status
         })
 
     return jsonify(application_data)
