@@ -1,4 +1,3 @@
-import flask
 from flask import Flask, render_template, redirect, url_for, flash, request, session, send_from_directory, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_session import Session
@@ -23,7 +22,7 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
-app.config['Pictures'] = '/Users/alexeydubovik/PycharmProjects/METZApplicationApp/Pictures'
+app.config['Pictures'] = '/home/AwakenOne11/MetzAppForMobile/Pictures'
 Session(app)
 
 
@@ -201,7 +200,7 @@ def api_submit_application():
         return jsonify({'message': 'Invalid inventory number'}), 400
 
     # Save photo if provided
-    if photo:
+    if photo and photo != "":
         image_data = base64.b64decode(photo)
 
         # Создаем объект BytesIO для чтения данных в виде потока байтов
@@ -242,17 +241,24 @@ def api_get_applications():
 
     application_data = []
     for application in applications:
-        with open(app.config['Pictures']  + '/'+ application.photo, 'rb') as image_file:
-            image_data = image_file.read()
-
-        image_64 = base64.b64encode(image_data).decode('utf-8')
-        application_data.append({
-            'id': application.id,
-            'description': application.description,
-            'inventory_number': application.inventory_number,
-            'photo': image_64,
-            'status': application.status
-        })
+        if application.photo:
+            with open(app.config['Pictures']  + '/'+ application.photo, 'rb') as image_file:
+                image_data = image_file.read()
+                image_64 = base64.b64encode(image_data).decode('utf-8')
+            application_data.append({
+                'id': application.id,
+                'description': application.description,
+                'inventory_number': application.inventory_number,
+                'photo': image_64,
+                'status': application.status
+            })
+        else:
+            application_data.append({
+                'id': application.id,
+                'description': application.description,
+                'inventory_number': application.inventory_number,
+                'status': application.status
+            })
 
     return jsonify(application_data)
 
