@@ -14,7 +14,7 @@ from PIL import Image
 app = Flask(__name__)
 app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1'
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///METZ.db'
+    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/alexeydubovik/PycharmProjects/METZApplicationApp/METZ.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -29,8 +29,9 @@ Session(app)
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
-    phone_number = db.Column(db.String(20), unique=True, nullable=True)
+    phone_number = db.Column(db.String(20), nullable=True)
     password_hash = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean,default=False)
     applications = db.relationship('Application', backref='user', lazy=True)
 
     def set_password(self, password):
@@ -106,7 +107,7 @@ def register():
             return redirect(url_for('register'))
 
         # Create a new user
-        new_user = User(tab_number=tab_number, phone_number='+375296574530')
+        new_user = User(tab_number=tab_number)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -229,6 +230,35 @@ def api_submit_application():
 
     return jsonify({'message': 'Application submitted successfully'})
 
+
+@app.route('/admin', methods=['GET', 'POST'])
+def register_admin():
+    if request.method == 'POST':
+        tab_number = request.form['tab_number']
+        password = request.form['password']
+        phone_number = request.form['phone_number']
+
+        # Validate tab number
+        if not re.match(r'^\d{5,6}$', tab_number):
+            flash('Табельный номер должен содержать от 5 до 6 цифр', 'danger')
+            return redirect(url_for('register_admin'))
+
+        # Check if user with the same tab number already exists
+        existing_user = User.query.filter_by(tab_number=tab_number).first()
+        if existing_user:
+            flash('Пользователь с таким табельным номером уже существует', 'danger')
+            return redirect(url_for('register_admin'))
+
+        # Create a new user
+        new_user = User(tab_number=tab_number, phone_number=phone_number)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Регистрация успешно завершена', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('admin.html')
 
 @app.route('/api/applications', methods=['GET'])
 def api_get_applications():
