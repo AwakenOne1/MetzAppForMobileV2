@@ -14,7 +14,7 @@ from PIL import Image
 app = Flask(__name__)
 app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1'
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/alexeydubovik/PycharmProjects/METZApplicationApp/METZ.db'
+    'SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://TgBot:12345@172.16.1.40/dbPhoneReq?driver=ODBC+DRIVER+17+for+SQL+SERVER'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -22,11 +22,11 @@ login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
-app.config['Pictures'] = '/home/AwakenOne11/MetzAppForMobile/Pictures'
+app.config['Pictures'] = '/home/dubovik/AwakenOne11/MetzAppForMobileV3/Pictures'
 Session(app)
 
 
-class User(db.Model, UserMixin):
+class WUser(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
@@ -34,7 +34,6 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(40), nullable=False)
     password_hash = db.Column(db.String(1024), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
-    applications = db.relationship('Application', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -43,14 +42,14 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
 
-class Application(db.Model):
+class WApplication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.NVARCHAR(None), nullable=False)
     inventory_number = db.Column(db.String(20), nullable=False)
     photo = db.Column(db.String(100))
     status = db.Column(db.Integer)
     latest_valubale_date = db.Column(db.DATETIME())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('w_user.id'), nullable=False)
 
 
 def save_photo(photo):
@@ -63,7 +62,7 @@ def save_photo(photo):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return WUser.query.get(int(user_id))
 
 
 @app.route('/')
@@ -76,7 +75,7 @@ def login():
     if request.method == 'POST':
         tab_number = request.form['tab_number']
         password = request.form['password']
-        user = User.query.filter_by(tab_number=tab_number).first()
+        user = WUser.query.filter_by(tab_number=tab_number).first()
 
         if user and user.check_password(password):
             login_user(user)
@@ -104,13 +103,13 @@ def register():
             return redirect(url_for('register'))
 
         # Check if user with the same tab number already exists
-        existing_user = User.query.filter_by(tab_number=tab_number).first()
+        existing_user = WUser.query.filter_by(tab_number=tab_number).first()
         if existing_user:
             flash('Пользователь с таким табельным номером уже существует', 'danger')
             return redirect(url_for('register'))
 
         # Create a new user
-        new_user = User(tab_number=tab_number, phone_number=phone_number, department=department, full_name=full_name)
+        new_user = WUser(tab_number=tab_number, phone_number=phone_number, department=department, full_name=full_name)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -143,7 +142,7 @@ def application():
             photo = save_photo(request.files['photo'])
 
         # Создаем новую заявку
-        new_application = Application(
+        new_application = WApplication(
             description=description,
             inventory_number=inventory_number,
             photo=photo,
@@ -162,7 +161,7 @@ def application():
 @app.route('/mark_as_done/<int:application_id>', methods=['POST'])
 @login_required
 def mark_as_done(application_id):
-    application = Application.query.get(application_id)
+    application = WApplication.query.get(application_id)
     if application and application.status == 2:
         application.status = 3
         application.latest_valubale_date = datetime.datetime.now()
@@ -174,7 +173,7 @@ def mark_as_done(application_id):
 @login_required
 def profile():
     user = current_user
-    result = db.session.query(Application).filter_by(user_id=current_user.id).all()
+    result = db.session.query(WApplication).filter_by(user_id=current_user.id).all()
     return render_template('profile.html', user=user, applications=result)
 
 
@@ -184,7 +183,7 @@ def api_login():
     tab_number = data.get('tab_number')
     password = data.get('password')
     phone_number = data.get('phone_number')
-    user = User.query.filter_by(tab_number=tab_number, phone_number=phone_number).first()
+    user = WUser.query.filter_by(tab_number=tab_number, phone_number=phone_number).first()
     if user and user.check_password(password):
         return jsonify({'message': user.id})
     else:
@@ -221,7 +220,7 @@ def api_submit_application():
         photo_filename = None
 
     # Create a new application
-    new_application = Application(
+    new_application = WApplication(
         description=description,
         inventory_number=inventory_number,
         photo=photo_filename,
@@ -247,13 +246,13 @@ def register_admin():
             return redirect(url_for('register_admin'))
 
         # Check if user with the same tab number already exists
-        existing_user = User.query.filter_by(tab_number=tab_number).first()
+        existing_user = WUser.query.filter_by(tab_number=tab_number).first()
         if existing_user:
             flash('Пользователь с таким табельным номером уже существует', 'danger')
             return redirect(url_for('register_admin'))
 
         # Create a new user
-        new_user = User(tab_number=tab_number, phone_number=phone_number)
+        new_user = WUser(tab_number=tab_number, phone_number=phone_number)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -268,7 +267,7 @@ def api_get_applications():
     user_id = request.args.get('user_id')
 
     if user_id:
-        applications = Application.query.filter_by(user_id=user_id).all()
+        applications = WApplication.query.filter_by(user_id=user_id).all()
     else:
         return jsonify("У вас нет заявок")
 
