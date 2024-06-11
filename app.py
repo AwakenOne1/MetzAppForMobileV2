@@ -27,11 +27,13 @@ Session(app)
 
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
-    password_hash = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean,default=False)
+    department = db.Column(db.String(40), nullable=False)
+    full_name = db.Column(db.String(40), nullable=False)
+    password_hash = db.Column(db.String(1024), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
     applications = db.relationship('Application', backref='user', lazy=True)
 
     def set_password(self, password):
@@ -92,13 +94,14 @@ def register():
     if request.method == 'POST':
         tab_number = request.form['tab_number']
         password = request.form['password']
+        phone_number = request.form['phone_number']
+        department = request.form['department']
+        full_name = request.form['full_name']
 
         # Validate tab number
         if not re.match(r'^\d{5,6}$', tab_number):
             flash('Табельный номер должен содержать от 5 до 6 цифр', 'danger')
             return redirect(url_for('register'))
-
-        # Validate passwor
 
         # Check if user with the same tab number already exists
         existing_user = User.query.filter_by(tab_number=tab_number).first()
@@ -107,7 +110,7 @@ def register():
             return redirect(url_for('register'))
 
         # Create a new user
-        new_user = User(tab_number=tab_number)
+        new_user = User(tab_number=tab_number, phone_number=phone_number, department=department, full_name=full_name)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()

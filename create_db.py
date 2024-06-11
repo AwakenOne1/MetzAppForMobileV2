@@ -13,6 +13,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)
+    department = db.Column(db.String(40), nullable=False)
+    full_name = db.Column(db.String(40), nullable=False)
     password_hash = db.Column(db.String(1024), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     applications = db.relationship('Application', backref='user', lazy=True)
