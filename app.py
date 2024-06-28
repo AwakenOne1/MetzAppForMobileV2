@@ -100,6 +100,23 @@ def login():
     return render_template('login.html')
 
 
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    user = WUser.query.get(current_user.id)
+    if request.method == 'POST':
+        user.tab_number = request.form['tab_number']
+        user.full_name = request.form['full_name']
+        user.department = request.form['department']
+        user.phone_number = request.form['phone_number']
+        password = request.form['password']
+        if password:
+            user.password_hash = generate_password_hash(password)
+        db.session.commit()
+        flash('Профиль успешно обновлен', 'success')
+        return redirect(url_for('profile'))
+    return render_template('edit_profile.html', user=user)
+
 ## регистрация пользователя с соответствующей валидацией
 @app.route('/register', methods=['GET', 'POST'])
 def register():
