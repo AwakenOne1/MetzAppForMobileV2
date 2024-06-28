@@ -1,0 +1,3 @@
+172.20.10.2 - - [20/Jun/2024:11:23:21 +0300] "GET / HTTP/1.1" 200 1990 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
+172.20.10.2 - - [20/Jun/2024:11:23:21 +0300] "GET /static/custom.css HTTP/1.1" 304 0 "http://172.20.10.2:5000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"
+172.20.10.2 - - [20/Jun/2024:11:23:21 +0300] "GET /static/logo.png HTTP/1.1" 304 0 "http://172.20.10.2:5000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15"

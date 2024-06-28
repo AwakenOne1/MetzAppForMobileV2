@@ -62,3 +62,9 @@ body {
   border-color: green;
   color: black;
 }
+
+.btn-undone {
+  background-color: #fac3c3;
+  border-color: red;
+  color: black;
+}

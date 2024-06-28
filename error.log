@@ -1,0 +1,29 @@
+[2024-06-20 11:20:51 +0300] [35756] [INFO] Starting gunicorn 22.0.0
+[2024-06-20 11:20:51 +0300] [35756] [INFO] Listening at: http://172.20.10.2:5000 (35756)
+[2024-06-20 11:20:51 +0300] [35756] [INFO] Using worker: gthread
+[2024-06-20 11:20:51 +0300] [35757] [INFO] Booting worker with pid: 35757
+[2024-06-20 11:20:51 +0300] [35758] [INFO] Booting worker with pid: 35758
+[2024-06-20 11:21:39 +0300] [35756] [INFO] Handling signal: int
+[2024-06-20 11:21:39 +0300] [35758] [INFO] Worker exiting (pid: 35758)
+[2024-06-20 11:21:39 +0300] [35757] [INFO] Worker exiting (pid: 35757)
+[2024-06-20 11:21:39 +0300] [35756] [INFO] Shutting down: Master
+[2024-06-20 11:21:42 +0300] [35773] [INFO] Starting gunicorn 22.0.0
+[2024-06-20 11:21:42 +0300] [35773] [INFO] Listening at: http://172.20.10.2:5000 (35773)
+[2024-06-20 11:21:42 +0300] [35773] [INFO] Using worker: gthread
+[2024-06-20 11:21:42 +0300] [35774] [INFO] Booting worker with pid: 35774
+[2024-06-20 11:21:42 +0300] [35775] [INFO] Booting worker with pid: 35775
+[2024-06-20 12:36:04 +0300] [35773] [INFO] Handling signal: int
+[2024-06-20 12:36:04 +0300] [35775] [INFO] Worker exiting (pid: 35775)
+[2024-06-20 12:36:04 +0300] [35774] [INFO] Worker exiting (pid: 35774)
+[2024-06-20 12:36:04 +0300] [35773] [INFO] Shutting down: Master
+[2024-06-20 13:07:09 +0300] [37026] [INFO] Starting gunicorn 22.0.0
+[2024-06-20 13:07:09 +0300] [37026] [INFO] Listening at: http://172.20.10.2:5000 (37026)
+[2024-06-20 13:07:09 +0300] [37026] [INFO] Using worker: gthread
+[2024-06-20 13:07:09 +0300] [37027] [INFO] Booting worker with pid: 37027
+[2024-06-20 13:07:10 +0300] [37028] [INFO] Booting worker with pid: 37028
+[2024-06-20 13:09:35 +0300] [37026] [INFO] Handling signal: winch
+[2024-06-20 13:46:13 +0300] [37026] [INFO] Handling signal: winch
+[2024-06-20 13:46:16 +0300] [37026] [INFO] Handling signal: int
+[2024-06-20 13:46:16 +0300] [37028] [INFO] Worker exiting (pid: 37028)
+[2024-06-20 13:46:16 +0300] [37027] [INFO] Worker exiting (pid: 37027)
+[2024-06-20 13:46:16 +0300] [37026] [INFO] Shutting down: Master

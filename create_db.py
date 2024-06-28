@@ -1,15 +1,17 @@
 from flask import Flask
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 
+
 app = Flask(__name__)
-app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://TgBot:12345@172.16.1.40/dbPhoneReq?driver=ODBC+DRIVER+17+for+SQL+SERVER'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///METZ.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
-class WUser(db.Model):
+class WUser(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     tab_number = db.Column(db.String(20), unique=True, nullable=False)
     phone_number = db.Column(db.String(20), nullable=True)

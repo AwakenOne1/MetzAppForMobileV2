@@ -39,6 +39,9 @@
                     <form action="{{ url_for('mark_as_done', application_id=application.id) }}" method="POST">
                         <button type="submit" class="btn btn-success">Отметить как выполненную</button>
                     </form>
+                    <form action="{{ url_for('mark_as_unfinished', application_id=application.id) }}" method="POST">
+                        <button type="submit" class="btn btn-undone">Отметить как невыполненную</button>
+                    </form>
                 {% endif %}
             </li>
         {% endfor %}
