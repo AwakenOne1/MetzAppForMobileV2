@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request, session, send_from_directory, jsonify
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_session import Session
 import os
@@ -15,7 +15,7 @@ from PIL import Image
 app = Flask(__name__)
 app.secret_key = '3d6f45a5fc12445dbac2f59c3b6c7cb1'
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///METZ.db'
+    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/alexeydubovik/PycharmProjects/METZApplicationApp/instance/METZ.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -47,6 +47,9 @@ class WUser(db.Model, UserMixin):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 class WApplication(db.Model):

@@ -5,11 +5,10 @@ from werkzeug.security import generate_password_hash
 
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
 app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///METZ.db'
+    'SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/alexeydubovik/PycharmProjects/METZApplicationApp/instance/METZ.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+db = SQLAlchemy(app)
 
 class WUser(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
